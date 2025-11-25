@@ -1,0 +1,247 @@
+
+1. Create a heatmap to visualize Uber pickups by day of the
+week and hour of the day.
+
+
+
+
+
+
+
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
+# Load dataset
+# Example: 'uber-raw-data-apr14.csv'
+df = pd.read_csv('/content/drive/MyDrive/uber city pickup/archive/uber-raw-data-aug14.csv')
+
+
+# Convert 'Date/Time' column to datetime format
+df['Date/Time'] = pd.to_datetime(df['Date/Time'])
+
+
+# Extract day of week and hour
+df['DayOfWeek'] = df['Date/Time'].dt.day_name()  # e.g., Monday, Tuesday
+df['Hour'] = df['Date/Time'].dt.hour
+
+
+# Define order of days for better visualization
+days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+
+# Create a pivot table: average or total pickups by day and hour
+heatmap_data = df.pivot_table(index='DayOfWeek', columns='Hour', values='Date/Time', aggfunc='count')
+
+
+# Reorder days of the week
+heatmap_data = heatmap_data.reindex(days_order)
+
+
+# Plot heatmap
+plt.figure(figsize=(12, 6))
+sns.heatmap(heatmap_data, cmap='YlOrRd', linewidths=0.5)
+
+
+# Customize labels and title
+plt.title('Uber Pickups by Day of Week and Hour of Day', fontsize=16)
+plt.xlabel('Hour of Day')
+plt.ylabel('Day of Week')
+
+
+# Show the plot
+plt.show()
+
+
+
+
+2. Use a line chart to show the trend of Uber pickups across a
+specific month.
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+# Load dataset (example file name: uber-raw-data-apr14.csv)
+df = pd.read_csv('/content/drive/MyDrive/uber city pickup/archive/uber-raw-data-aug14.csv')
+
+
+# Convert 'Date/Time' to datetime format
+df['Date/Time'] = pd.to_datetime(df['Date/Time'])
+
+
+# Extract date
+df['Date'] = df['Date/Time'].dt.date
+
+
+# Group by date to count total pickups per day
+daily_pickups = df.groupby('Date').size()
+
+
+# Plot the line chart
+plt.figure(figsize=(12, 6))
+plt.plot(daily_pickups.index, daily_pickups.values, marker='o', linestyle='-', color='teal')
+
+
+# Customize the plot
+plt.title('Trend of Uber Pickups in April 2014', fontsize=16)
+plt.xlabel('Date')
+plt.ylabel('Number of Pickups')
+plt.grid(True)
+plt.tight_layout()
+
+
+# Display chart
+plt.show()
+
+
+
+3) Create a bubble chart to display the number of pickups in different regions of New York City, with the size of the bubbles representing the total number of pickups.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+# Load dataset (example: uber-raw-data-apr14.csv)
+df = pd.read_csv('/content/drive/MyDrive/uber city pickup/archive/uber-raw-data-aug14.csv')
+
+
+# Convert 'Date/Time' to datetime (if needed)
+df['Date/Time'] = pd.to_datetime(df['Date/Time'])
+
+
+# Check if dataset has region/borough info; if not, we'll use lat-long clustering
+# Assuming dataset has 'Lat' and 'Lon' columns for coordinates
+
+
+# Define approximate region boundaries (simplified version)
+def classify_region(lat, lon):
+    if 40.70 <= lat <= 40.85 and -74.02 <= lon <= -73.93:
+        return 'Manhattan'
+    elif 40.57 <= lat <= 40.74 and -74.05 <= lon <= -73.85:
+        return 'Brooklyn'
+    elif 40.84 <= lat <= 40.91 and -73.92 <= lon <= -73.77:
+        return 'Bronx'
+    elif 40.64 <= lat <= 40.79 and -73.87 <= lon <= -73.73:
+        return 'Queens'
+    elif 40.50 <= lat <= 40.65 and -74.25 <= lon <= -74.05:
+        return 'Staten Island'
+    else:
+        return 'Other'
+
+
+# Apply region classification
+df['Region'] = df.apply(lambda row: classify_region(row['Lat'], row['Lon']), axis=1)
+
+
+# Count total pickups by region
+region_pickups = df['Region'].value_counts().reset_index()
+region_pickups.columns = ['Region', 'Pickups']
+
+
+# Assign approximate coordinates for plotting bubbles
+region_coords = {
+    'Manhattan': (40.78, -73.97),
+    'Brooklyn': (40.68, -73.95),
+    'Queens': (40.73, -73.85),
+    'Bronx': (40.85, -73.87),
+    'Staten Island': (40.58, -74.15)
+}
+
+
+# Merge coordinates
+region_pickups['Lat'] = region_pickups['Region'].map(lambda r: region_coords.get(r, (0, 0))[0])
+region_pickups['Lon'] = region_pickups['Region'].map(lambda r: region_coords.get(r, (0, 0))[1])
+
+
+# Plot bubble chart
+plt.figure(figsize=(8, 8))
+plt.scatter(
+    region_pickups['Lon'], 
+    region_pickups['Lat'], 
+    s=region_pickups['Pickups'] / 50,  # Scale bubble size
+    alpha=0.6, 
+    c='dodgerblue', 
+    edgecolors='black'
+)
+
+
+# Add labels
+for i, row in region_pickups.iterrows():
+    plt.text(row['Lon'], row['Lat'], f"{row['Region']}\n{row['Pickups']}", 
+             ha='center', va='center', fontsize=10, weight='bold', color='white')
+
+
+# Customize chart
+plt.title('Uber Pickups Across New York City Regions', fontsize=16)
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
+plt.grid(True)
+plt.tight_layout()
+
+
+# Show chart
+plt.show()
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+prog - 8- dataset-1
+
+
+1. Create a bar chart to visualize the survival rate based on passenger class (Pclass).
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load dataset
+df = pd.read_csv("train.csv")
+# 1. Bar Chart — Survival Rate by Passenger Class (Pclass)
+survival_rate = df.groupby('Pclass')['Survived'].mean()
+plt.figure(figsize=(8,5))
+plt.bar(survival_rate.index, survival_rate.values)
+plt.title("Survival Rate by Passenger Class")
+plt.xlabel("Passenger Class (Pclass)")
+plt.ylabel("Survival Rate")
+plt.xticks([1, 2, 3])
+plt.grid(axis='y', linestyle='--', alpha=0.5)
+plt.show()
+
+
+2. Use a pie chart to show the proportion of survivors vs. non-survivors in the dataset.
+
+# 2. Pie Chart — Survivors vs Non-Survivors
+
+survival_counts = df['Survived'].value_counts()
+plt.figure(figsize=(6,6))
+plt.pie(
+    survival_counts,
+    labels=["Non-Survived", "Survived"],
+    autopct="%1.1f%%",
+    startangle=90
+)
+plt.title("Proportion of Survivors vs. Non-Survivors")
+plt.show()
+
+
+3. Create a stacked bar chart to compare the number of survivors and non-survivors based on passenger class and sex.
+
+# 3. Stacked Bar Chart — Survivors vs Non-Survivors by Pclass & Sex
+
+stack_data = df.groupby(['Pclass', 'Sex', 'Survived']).size().unstack(fill_value=0)
+plt.figure(figsize=(10,6))
+# index example: (1, 'male'), (1, 'female'), ...
+x_labels = [f"{cls}\n{sex}" for cls, sex in stack_data.index]
+
+# bottom stacking
+bottom_vals = stack_data[0]
+plt.bar(x_labels, stack_data[0], label="Non-Survived")
+plt.bar(x_labels, stack_data[1], bottom=stack_data[0], label="Survived")
+plt.title("Survivors vs Non-Survivors by Passenger Class and Sex")
+plt.xlabel("Class & Sex")
+plt.ylabel("Count")
+plt.legend()
+plt.grid(axis='y', linestyle='--', alpha=0.4)
+plt.show()
+
