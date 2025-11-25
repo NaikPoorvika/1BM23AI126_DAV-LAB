@@ -1,0 +1,116 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# ======================================================
+# DATA (you can replace this with CSV import if needed)
+# ======================================================
+data = {
+    "Game": [1, 2, 3, 4, 5, 6],
+    "Points Scored": [95, 102, 78, 88, 110, 100],
+    "Opponent Points": [90, 88, 100, 85, 95, 100],
+    "Attendance": [1500, 1800, 1200, 1600, 2000, 1900]
+}
+
+df = pd.DataFrame(data)
+
+print(df)
+# ======================================================
+
+
+# ------------------------------------------------------
+# 1. How did the team’s points change over the season?
+# ------------------------------------------------------
+plt.figure()
+plt.plot(df["Game"], df["Points Scored"], marker='o')
+plt.xlabel("Game")
+plt.ylabel("Points Scored")
+plt.title("Team Points Over the Season")
+plt.grid()
+plt.show()
+
+
+# ------------------------------------------------------
+# 2. Average attendance
+# ------------------------------------------------------
+avg_attendance = df["Attendance"].mean()
+print("\nAverage Attendance:", avg_attendance)
+
+
+# ------------------------------------------------------
+# 3. (Assuming players = games?) 
+# If each row = a game (not a player), then total points is already given.
+# The question likely means: visualize total points scored each game.
+# ------------------------------------------------------
+plt.figure()
+plt.bar(df["Game"], df["Points Scored"])
+plt.xlabel("Game")
+plt.ylabel("Points Scored")
+plt.title("Total Points Scored in Each Game")
+plt.show()
+
+
+# ------------------------------------------------------
+# 4. Games scored above threshold (100)
+# Create ranges: 80–90, 90–100, 100–110
+# ------------------------------------------------------
+bins = [0, 80, 90, 100, 110, 200]
+labels = ["<80", "80-90", "90-100", "100-110", "110+"]
+
+df["Score Range"] = pd.cut(df["Points Scored"], bins=bins, labels=labels)
+
+range_counts = df["Score Range"].value_counts().sort_index()
+print("\nScore Range Counts:\n", range_counts)
+
+plt.figure()
+plt.bar(range_counts.index, range_counts.values)
+plt.xlabel("Score Range")
+plt.ylabel("Number of Games")
+plt.title("Distribution of Points Scored")
+plt.show()
+
+
+# ------------------------------------------------------
+# 5. Opponent performance: show points scored against each opponent
+# (Opponent is identified by game number)
+# ------------------------------------------------------
+plt.figure()
+plt.bar(df["Game"], df["Opponent Points"])
+plt.xlabel("Game (Opponent)")
+plt.ylabel("Opponent Points")
+plt.title("Points Scored Against Each Opponent")
+plt.show()
+
+
+# ------------------------------------------------------
+# 6. Attendance comparison vs opponents
+# ------------------------------------------------------
+plt.figure()
+plt.bar(df["Game"], df["Attendance"])
+plt.xlabel("Game (Opponent)")
+plt.ylabel("Attendance")
+plt.title("Attendance for Each Opponent")
+plt.show()
+
+
+# ------------------------------------------------------
+# 7. Win-Loss vs Points Scored
+# ------------------------------------------------------
+df["Win"] = df["Points Scored"] > df["Opponent Points"]
+
+wins = df["Win"].sum()
+losses = len(df) - wins
+print("\nWins:", wins, "Losses:", losses)
+
+plt.figure()
+plt.bar(["Wins", "Losses"], [wins, losses])
+plt.ylabel("Count")
+plt.title("Win–Loss Record")
+plt.show()
+
+# Points summary
+plt.figure()
+plt.bar(df["Game"], df["Points Scored"])
+plt.xlabel("Game")
+plt.ylabel("Points Scored")
+plt.title("Average Points Scored per Game")
+plt.show()
