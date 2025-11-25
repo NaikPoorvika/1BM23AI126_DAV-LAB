@@ -1,0 +1,72 @@
+import pandas as pd
+import numpy as np
+
+# Create the dataset
+data = {
+    'Country': ['USA', 'USA', 'China', 'China', 'Germany', 'Germany'],
+    'Year': [2020, 2021, 2020, 2021, 2020, 2021],
+    'Population': [331000000, 332000000, 1402000000, 1405000000, 83000000, 83100000],
+    'GDP': [21000000, 21500000, 14700000, 15500000, 4000000, 4200000],
+    'Life_Expectancy': [78.5, 78.7, 76.9, 77.1, 81.3, 81.5]
+}
+
+# Create DataFrame with hierarchical index (Country, Year)
+df = pd.DataFrame(data)
+df.set_index(['Country', 'Year'], inplace=True)
+print(df)
+
+# Mean and Sum using Pandas
+print("Mean Population:", df['Population'].mean())
+print("Total GDP:", df['GDP'].sum())
+
+# Min and Max using Pandas
+print("Minimum GDP:", df['GDP'].min())
+print("Maximum GDP:", df['GDP'].max())
+
+# Describe method gives overall statistics
+print("\nSummary Statistics:\n", df[['Population', 'GDP']].describe())
+
+# Using NumPy functions on Pandas columns
+pop_mean = np.mean(df['Population'])
+pop_std = np.std(df['Population'])
+gdp_sum = np.sum(df['GDP'])
+
+print("Population Mean (NumPy):", pop_mean)
+print("Population Std Dev (NumPy):", pop_std)
+print("GDP Sum (NumPy):", gdp_sum)
+
+df['GDP'] = df['GDP'] * 1.10
+print("\nUpdated GDP after 10% increase:\n", df['GDP'])
+# Swap the index levels (Country ↔ Year)
+df_swapped = df.swaplevel('Country', 'Year')
+print("\nAfter swaplevel():\n")
+print(df_swapped)
+
+df_sorted = df_swapped.sort_index(level='Year')
+print("\nAfter sorting by Year:\n")
+print(df_sorted)
+# Pivot the data using unstack()
+df_unstacked = df.unstack(level='Year')
+print("\nAfter unstacking by Year:\n")
+print(df_unstacked)
+
+# Compare GDP across years for each country
+print("\nGDP comparison across years:\n")
+print(df_unstacked['GDP'])
+
+# Compare Life Expectancy across years
+print("\nLife Expectancy comparison:\n")
+print(df_unstacked['Life_Expectancy'])
+
+# Get population trend for USA
+print("\nPopulation trend for USA:\n")
+print(df.loc['USA', 'Population'])
+
+# Get population across all countries for 2021
+print("\nPopulation of all countries in 2021:\n")
+print(df.xs(2021, level='Year')['Population'])
+
+# Calculate mean population per country (if multiple years exist)
+print("\nAverage population per country:\n")
+print(df['Population'].groupby('Country').mean())
+
